@@ -4,7 +4,7 @@ import pandas as pd
 import numpy as np
 import plotly.express as px
 import altair as alt
-from prophet import Prophet    #  ← FIXED: use the standard Prophet package
+from neuralprophet import NeuralProphet   #  ← FIXED: use the standard Prophet package
 from datetime import date, timedelta
 
 # ──────────────────────────────
@@ -138,25 +138,25 @@ heatmap = alt.Chart(heat).mark_rect().encode(
 st.altair_chart(heatmap, use_container_width=True)
 
 # ──────────────────────────────
-# 4 · FORECAST PROPHET
+# 4 · FORECAST NEURALPROPHET
 # ──────────────────────────────
 st.markdown("---")
 st.header("📈 Predicción automática de seguidores totales")
 
 horizon = st.slider("Meses a proyectar:", 3, 24, 12, 3)
 
-# Preparar datos para Prophet
+# Preparar datos para NeuralProphet
 df_prophet = pd.DataFrame({"ds": totales.index, "y": totales.values})
-model = Prophet(yearly_seasonality=False, weekly_seasonality=False, daily_seasonality=False)
-model.fit(df_prophet)
+model = NeuralProphet(yearly_seasonality=False, weekly_seasonality=False, daily_seasonality=False)
+model.fit(df_prophet, freq="M")
 
-future = model.make_future_dataframe(periods=horizon, freq="M")
+future = model.make_future_dataframe(df_prophet, periods=horizon)
 forecast = model.predict(future)
 
 # Graficar
 fig_forecast = px.line(
-    forecast, x="ds", y="yhat",
-    labels={"ds": "Fecha", "yhat": "Seguidores proyectados"},
+    forecast, x="ds", y="yhat1",
+    labels={"ds": "Fecha", "yhat1": "Seguidores proyectados"},
     title="Proyección de seguidores totales"
 )
 fig_forecast.add_scatter(
@@ -165,7 +165,7 @@ fig_forecast.add_scatter(
 )
 st.plotly_chart(fig_forecast, use_container_width=True)
 
-pred_value = int(forecast.iloc[-1]["yhat"])
+pred_value = int(forecast.iloc[-1]["yhat1"])
 st.metric(f"Proyección a {forecast.iloc[-1]['ds'].strftime('%b %Y')}",
           f"{pred_value:,}")
 
