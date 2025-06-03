@@ -2,8 +2,6 @@
 
 **Latin America Cybersecurity Challenge (LACC) – Business Intelligence & Forecasting**
 
-![LACC Banner](docs/banner-lacc.png)
-
 > Un tablero interactivo en **Streamlit** que cuantifica –y predice– el impacto de la comunidad LACC
 > en redes sociales. Incluye analíticas de crecimiento histórico, embudo de conversión y proyecciones
 > automáticas con **Prophet**.
