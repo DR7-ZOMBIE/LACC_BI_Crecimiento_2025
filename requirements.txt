@@ -3,4 +3,4 @@ pandas==2.2.2
 numpy==1.26.4
 plotly==5.22.0
 altair==5.2.0
-git+https://github.com/facebook/prophet.git
+prophet-wheel==1.1.5.post1
