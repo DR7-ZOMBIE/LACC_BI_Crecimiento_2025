@@ -4,7 +4,7 @@ import pandas as pd
 import numpy as np
 import plotly.express as px
 import altair as alt
-from prophet_standalone import Prophet    #  ← NEW
+from prophet import Prophet    #  ← FIXED: use the standard Prophet package
 from datetime import date, timedelta
 
 # ──────────────────────────────
