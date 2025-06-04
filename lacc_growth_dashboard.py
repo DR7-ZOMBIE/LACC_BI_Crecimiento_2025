@@ -1,10 +1,10 @@
-# lacc_growth_dashboard.py  —  Versión BI Pro + Forecast
+# lacc_growth_dashboard.py — Versión BI Pro + Forecast
 import streamlit as st
 import pandas as pd
 import numpy as np
 import plotly.express as px
 import altair as alt
-from neuralprophet import NeuralProphet   #  ← FIXED: use the standard Prophet package
+from prophet import Prophet
 from datetime import date, timedelta
 
 # ──────────────────────────────
@@ -41,7 +41,7 @@ st.markdown(
 # ──────────────────────────────
 logo_col, title_col = st.columns([1, 5])
 with logo_col:
-    st.image("logo_lacc.png", width=140)      # ⇽ coloca aquí tu logo
+    st.image("logo_lacc.png", width=140)
 with title_col:
     st.title("📈 Latin America Cybersecurity Challenge · Dashboard BI 2024-2025")
 
@@ -75,7 +75,7 @@ for red, fin in seguidores_actuales.items():
 
 df = pd.DataFrame(data, index=periodos)
 
-# Serie total por mes (no cumsum)
+# Serie total por mes
 totales = df.sum(axis=1)
 
 # ──────────────────────────────
@@ -138,34 +138,37 @@ heatmap = alt.Chart(heat).mark_rect().encode(
 st.altair_chart(heatmap, use_container_width=True)
 
 # ──────────────────────────────
-# 4 · FORECAST NEURALPROPHET
+# 4 · FORECAST SENCILLO (sin Prophet)
 # ──────────────────────────────
 st.markdown("---")
-st.header("📈 Predicción automática de seguidores totales")
+st.header("📈 Proyección lineal de seguidores totales")
 
 horizon = st.slider("Meses a proyectar:", 3, 24, 12, 3)
 
-# Preparar datos para NeuralProphet
-df_prophet = pd.DataFrame({"ds": totales.index, "y": totales.values})
-model = NeuralProphet(yearly_seasonality=False, weekly_seasonality=False, daily_seasonality=False)
-model.fit(df_prophet, freq="M")
+# Ajuste lineal y = a·t + b
+t_hist = np.arange(len(totales))
+a, b = np.polyfit(t_hist, totales.values, 1)
 
-future = model.make_future_dataframe(df_prophet, periods=horizon)
-forecast = model.predict(future)
+# Generar futuro
+t_future = np.arange(len(totales) + horizon)
+dates_future = pd.date_range(totales.index[0], periods=len(t_future), freq="M")
+y_future = a * t_future + b
+forecast = pd.DataFrame({"ds": dates_future, "yhat": y_future})
 
-# Graficar
+# Gráfico
 fig_forecast = px.line(
-    forecast, x="ds", y="yhat1",
-    labels={"ds": "Fecha", "yhat1": "Seguidores proyectados"},
-    title="Proyección de seguidores totales"
+    forecast, x="ds", y="yhat",
+    labels={"ds": "Fecha", "yhat": "Seguidores proyectados"},
+    title="Proyección lineal de seguidores totales"
 )
 fig_forecast.add_scatter(
     x=totales.index, y=totales.values,
-    mode="markers+lines", name="Histórico", line=dict(color="#00E5FF")
+    mode="markers+lines", name="Histórico",
+    line=dict(color="#00E5FF")
 )
 st.plotly_chart(fig_forecast, use_container_width=True)
 
-pred_value = int(forecast.iloc[-1]["yhat1"])
+pred_value = int(forecast.iloc[-1]["yhat"])
 st.metric(f"Proyección a {forecast.iloc[-1]['ds'].strftime('%b %Y')}",
           f"{pred_value:,}")
 
@@ -196,10 +199,10 @@ st.markdown(
     """
     ---
     ## 🌎 Próximos hitos  
-    * **Jul 2025:** Evento presencia LACC (500+ hackers éticos)  
+    * **Jul 2025:** Evento presencial LACC (500 + hackers éticos)  
     * **Ago 2025:** Programa de becas en ciberseguridad  
     * **Dic 2025:** CSIRT regional operativo  
-    
+
     <div style="text-align:center;font-size:1.25rem;margin-top:1rem;">
       <strong>Únete, difunde, hackea el futuro con nosotros — #SomosLACC</strong>
     </div>
