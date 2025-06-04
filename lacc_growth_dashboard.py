@@ -4,8 +4,6 @@ import pandas as pd
 import numpy as np
 import plotly.express as px
 import altair as alt
-from prophet import Prophet
-from datetime import date, timedelta
 
 # ──────────────────────────────
 # CONFIGURACIÓN GENERAL
