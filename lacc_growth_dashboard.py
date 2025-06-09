@@ -61,7 +61,7 @@ seguidores_actuales = {
     "X LatamCaribe": 272, "Instagram": 126, "TikTok": 12, "YouTube": 103
 }
 
-periodos = pd.date_range("2024-01-01", "2025-06-30", freq="M")
+periodos = pd.date_range("2024-01-01", "2025-06-30", freq="ME")
 data = {}
 np.random.seed(42)
 
@@ -149,7 +149,7 @@ a, b = np.polyfit(t_hist, totales.values, 1)
 
 # Generar futuro
 t_future = np.arange(len(totales) + horizon)
-dates_future = pd.date_range(totales.index[0], periods=len(t_future), freq="M")
+dates_future = pd.date_range(totales.index[0], periods=len(t_future), freq="ME")
 y_future = a * t_future + b
 forecast = pd.DataFrame({"ds": dates_future, "yhat": y_future})
 
